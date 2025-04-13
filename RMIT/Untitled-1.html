@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Event Manager</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>Event Manager</h1>
+</header>
+
+<div class="container">
+  <!-- Event Creation -->
+  <div class="section">
+    <h2>Create an Event</h2>
+    <input type="text" id="eventTitle" placeholder="Event Title" />
+    <input type="datetime-local" id="eventDate" />
+    <textarea id="eventDescription" placeholder="Event Description"></textarea>
+    <button onclick="createEvent()">Create Event</button>
+  </div>
+
+  <!-- Event List & RSVP -->
+  <div class="section">
+    <h2>Upcoming Events</h2>
+    <div id="eventList"></div>
+  </div>
+
+  <!-- Discussion Board -->
+  <div class="section">
+    <h2>Discussion Board</h2>
+    <textarea id="discussionInput" placeholder="Post a comment..."></textarea>
+    <button onclick="postComment()">Post</button>
+    <div id="discussionBoard"></div>
+  </div>
+
+  <!-- Notifications -->
+  <div class="section">
+    <h2>Notifications</h2>
+    <div id="notificationArea"></div>
+  </div>
+</div>
+
+<script>
+  const eventList = document.getElementById("eventList");
+  const discussionBoard = document.getElementById("discussionBoard");
+  const notificationArea = document.getElementById("notificationArea");
+
+  let events = [];
+  let comments = [];
+  let notifications = [];
+
+  function createEvent() {
+    const title = document.getElementById("eventTitle").value.trim();
+    const date = document.getElementById("eventDate").value;
+    const description = document.getElementById("eventDescription").value.trim();
+
+    if (!title || !date || !description) {
+      alert("Please fill in all event fields.");
+      return;
+    }
+
+    const event = {
+      id: Date.now(),
+      title,
+      date,
+      description
+    };
+
+    events.push(event);
+    addNotification(`New event created: ${title} on ${new Date(date).toLocaleString()}`);
+    renderEvents();
+
+    // Clear form fields
+    document.getElementById("eventTitle").value = "";
+    document.getElementById("eventDate").value = "";
+    document.getElementById("eventDescription").value = "";
+  }
+
+  function renderEvents() {
+    eventList.innerHTML = "";
+    if (events.length === 0) {
+      eventList.innerHTML = "<p>No events yet.</p>";
+      return;
+    }
+
+    events.forEach(event => {
+      const div = document.createElement("div");
+      div.className = "event-item";
+      div.innerHTML = `
+        <strong>${event.title}</strong><br/>
+        <small>${new Date(event.date).toLocaleString()}</small><br/>
+        <p>${event.description}</p>
+        <div class="rsvp-buttons">
+          <button onclick="rsvp('${event.id}', 'Accepted')">Accept</button>
+          <button onclick="rsvp('${event.id}', 'Declined')">Decline</button>
+        </div>
+      `;
+      eventList.appendChild(div);
+    });
+  }
+
+  function rsvp(eventId, response) {
+    const event = events.find(e => e.id == eventId);
+    if (event) {
+      addNotification(`You have ${response} the invitation to "${event.title}".`);
+    }
+  }
+
+  function postComment() {
+    const comment = document.getElementById("discussionInput").value.trim();
+    if (comment) {
+      comments.push(comment);
+      document.getElementById("discussionInput").value = "";
+      renderComments();
+    }
+  }
+
+  function renderComments() {
+    discussionBoard.innerHTML = "";
+    comments.forEach(comment => {
+      const div = document.createElement("div");
+      div.className = "message";
+      div.textContent = comment;
+      discussionBoard.appendChild(div);
+    });
+  }
+
+  function addNotification(msg) {
+    notifications.push(msg);
+    if (notifications.length > 5) notifications.shift();
+    renderNotifications();
+  }
+
+  function renderNotifications() {
+    notificationArea.innerHTML = "";
+    notifications.forEach(note => {
+      const div = document.createElement("div");
+      div.className = "message";
+      div.textContent = note;
+      notificationArea.appendChild(div);
+    });
+  }
+
+  // Optional auto-reminders for events starting soon
+  setInterval(() => {
+    const now = new Date();
+    events.forEach(event => {
+      const timeDiff = new Date(event.date) - now;
+      if (timeDiff > 0 && timeDiff < 60000) {
+        addNotification(`Reminder: ${event.title} starts soon!`);
+      }
+    });
+  }, 30000);
+</script>
+
+</body>
+</html>
