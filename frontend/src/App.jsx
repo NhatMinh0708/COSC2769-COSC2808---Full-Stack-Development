@@ -10,7 +10,10 @@ import AdminDashboard from './pages/Admin/AdminDashBoard.jsx';
 import Settings from './pages/Admin/Settings.jsx';
 
 import AttendeeDashboard from './pages/User/AttendeeDashboard.jsx';
-import OrganizerDashboard from './pages/User/OrganizerDashboard.jsx'; // Fix tên sai: Orrganizer
+import OrganizerDashboard from './pages/User/OrganizerDashboard.jsx'; 
+import LandingPage from './pages/LandingPage.jsx';
+import { useNavigate } from 'react-router-dom';
+
 
 import { UserContextProvider } from './pages/User/UserContext';
 import axios from 'axios';
@@ -36,6 +39,8 @@ function App() {
 
         {/* Attendee */}
         <Route path="/attendee/dashboard" element={<AttendeeDashboard />} />
+        {/* Landing Page */}
+        <Route path="/" element={<LandingPage />} />
       </Routes>
     </UserContextProvider>
   );
